@@ -1,9 +1,9 @@
 import torch
 from typing import Callable
 
-from mask_generator import MaskGenerator, RandomMaskGenerator
-from perturbation import ConstantPerturbation, BlurPerturbation, Perturbation
-from stopping_criteria import MaxIterations, NoImprovement, StoppingCriteria
+from .mask_generator import MaskGenerator
+from .perturbation import Perturbation
+from .stopping_criteria import StoppingCriteria
 
 class RISE:
     def __init__(self,mask_generator:MaskGenerator,perturbation:Perturbation,stopping_criteria:StoppingCriteria) -> None:
@@ -41,8 +41,10 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from time import perf_counter
 
-    mask_generator = RandomMaskGenerator(32,(4,4),(224,224))
-    stopping_criteria = NoImprovement(1000,64/32,0.3)#MaxIterations(128/32)
+    batch_size=32
+
+    mask_generator = RandomMaskGenerator(batch_size,(4,4),(224,224))
+    stopping_criteria = NoImprovement(1000,64/batch_size,0.3)#MaxIterations(128/32)
     isotropic_sigma = 10
     reference = BlurPerturbation(torch.tensor([isotropic_sigma,isotropic_sigma]))#ConstantPerturbation(0)
 
@@ -83,6 +85,7 @@ if __name__ == "__main__":
         plt.imshow(masked_inputs[0].permute(1,2,0).cpu())
         plt.show()
     heatmap=rise.attribute(input,model,pred_label_idx,metrics=metrics)#,callback=plot_masked_input)
+    metrics['iterations'] *= batch_size
     print("Elapsed time: ", perf_counter() - start_time)
     print("Metrics: ", metrics)
     print("Heatmap shape: ", heatmap.shape)

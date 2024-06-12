@@ -1,7 +1,7 @@
 import abc
 import torch
 
-from stats_running import RunningMeanAndVarianceWelford
+from .stats_running import RunningMeanAndVarianceWelford
 
 def normalize_heatmap(heatmap:torch.Tensor) -> torch.Tensor:
     heatmap_norm = heatmap.clone()
